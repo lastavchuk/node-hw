@@ -9,7 +9,7 @@ const contactSchemaMongoose = new Schema(
             type: String,
             minlength: [3, errMsg.errMsgMin],
             maxlength: [50, errMsg.errMsgMax],
-            required: [true, errMsg.errMsgNameRequired],
+            required: [true, errMsg.errFieldIsrequired("Name")],
         },
         email: {
             type: String,
@@ -21,7 +21,7 @@ const contactSchemaMongoose = new Schema(
                 message: (props) =>
                     `${props.value} ${errMsg.errMsgEmailRegexp}`,
             },
-            required: [true, errMsg.errMsgEmailRequired],
+            required: [true, errMsg.errFieldIsrequired("Email")],
         },
         phone: {
             type: String,
@@ -33,7 +33,7 @@ const contactSchemaMongoose = new Schema(
                 message: (props) =>
                     `${props.value} ${errMsg.errMsgPhoneRegexp}`,
             },
-            required: [true, errMsg.errMsgPhoneRequired],
+            required: [true, errMsg.errFieldIsrequired("Phone number")],
         },
         favorite: { type: Boolean, default: false },
     },
