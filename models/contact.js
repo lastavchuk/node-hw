@@ -35,7 +35,15 @@ const contactSchemaMongoose = new Schema(
             },
             required: [true, errMsg.errFieldIsrequired("Phone number")],
         },
-        favorite: { type: Boolean, default: false },
+        favorite: {
+            type: Boolean,
+            default: false,
+        },
+        owner: {
+            type: Schema.Types.ObjectId,
+            ref: "user",
+            required: [true, errMsg.errFieldIsrequired("Owner")],
+        },
     },
     { versionKey: false, timestamps: true }
 );
