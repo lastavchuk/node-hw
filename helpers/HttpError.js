@@ -1,9 +1,11 @@
+const errMsg = require("../consts/errors");
+
 const messages = {
-    400: "Bad Request",
-    401: "Unauthorized",
-    403: "Forbbiden",
-    404: "Not found",
-    409: "Conflict",
+    400: errMsg.errBadReq,
+    401: errMsg.errNotAuth,
+    403: errMsg.errForbbiden,
+    404: errMsg.errNotFound,
+    409: errMsg.errConflict,
 };
 
 const HttpError = (status, message = messages[status]) => {

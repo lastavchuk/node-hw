@@ -10,7 +10,7 @@ const validateBody = (schema, isFavorite = false) => {
                     HttpError(
                         400,
                         error.message ||
-                            `Missing required ${err.details[0].path[0]} field`
+                            `Missing required ${error.details[0].path[0]} field`
                     )
                 );
             }

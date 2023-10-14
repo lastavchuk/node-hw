@@ -1,9 +1,10 @@
 const { Schema, model } = require("mongoose");
 const errMsg = require("../consts/errors");
 const regexp = require("../consts/regexps");
+const con = require("../consts/variables");
 const handleSaveError = require("../helpers/handleSaveError");
 
-const contactSchemaMongoose = new Schema(
+const userSchemaMongoose = new Schema(
     {
         name: {
             type: String,
@@ -23,37 +24,24 @@ const contactSchemaMongoose = new Schema(
             },
             required: [true, errMsg.errFieldIsrequired("Email")],
         },
-        phone: {
+        password: {
             type: String,
-            unique: true,
-            validate: {
-                validator: function (v) {
-                    return regexp.phoneRegexp.test(v);
-                },
-                message: (props) =>
-                    `${props.value} ${errMsg.errMsgPhoneRegexp}`,
-            },
-            required: [true, errMsg.errFieldIsrequired("Phone number")],
+            minlength: [3, errMsg.errMsgMinPass],
+            required: [true, errMsg.errFieldIsrequired("Password")],
         },
-        favorite: {
-            type: Boolean,
-            default: false,
+        subscription: {
+            type: String,
+            enum: con.subscriptionList,
+            default: "starter",
         },
-        owner: {
-            type: Schema.Types.ObjectId,
-            ref: "user",
-            required: [true, errMsg.errFieldIsrequired("Owner")],
-        },
+        token: String,
     },
     { versionKey: false, timestamps: true }
 );
 
 // for error add (post)
-contactSchemaMongoose.post("save", handleSaveError);
+userSchemaMongoose.post("save", handleSaveError);
 
-// for error update (put)
-contactSchemaMongoose.post("findOneAndUpdate", handleSaveError);
+const User = model("user", userSchemaMongoose);
 
-const Contact = model("contact", contactSchemaMongoose);
-
-module.exports = Contact;
+module.exports = User;
