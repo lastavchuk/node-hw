@@ -1,30 +1,34 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const HttpError = require("../helpers/HttpError");
+const ctrlWrapper = require("../helpers/ctrlWrapper");
 
 const { SECRET_KEY } = process.env;
 
 const authenticate = async (req, res, next) => {
     const { authorization } = req.headers;
-    if (authorization) {
-        const [bearer, token] = authorization.split(" ");
+    if (!authorization) {
+        throw HttpError(401);
+    }
 
-        if (bearer === "Bearer") {
-            try {
-                const { id } = jwt.verify(token, SECRET_KEY);
-                const user = await User.findById(id);
+    const [bearer, token] = authorization.split(" ");
+    if (bearer !== "Bearer") {
+        throw HttpError(401);
+    }
 
-                if (!user || !user.token || user.token !== token) {
-                    next(HttpError(401));
-                } else {
-                    req.user = user;
-                    next();
-                }
-            } catch (error) {
-                next(HttpError(401));
-            }
-        } else next(HttpError(401));
-    } else next(HttpError(401));
+    try {
+        const { id } = jwt.verify(token, SECRET_KEY);
+        const user = await User.findById(id);
+
+        if (!user || !user.token || user.token !== token) {
+            throw HttpError(401);
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        throw HttpError(401);
+    }
 };
 
-module.exports = authenticate;
+module.exports = ctrlWrapper(authenticate);
