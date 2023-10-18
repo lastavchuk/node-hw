@@ -34,6 +34,10 @@ const userSchemaMongoose = new Schema(
             enum: con.subscriptionList,
             default: "starter",
         },
+        avatarURL: {
+            type: String,
+            required: [true, errMsg.errFieldIsrequired("Avatar image")],
+        },
         token: String,
     },
     { versionKey: false, timestamps: true }
