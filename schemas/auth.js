@@ -60,9 +60,21 @@ const subscriptionSchemaJoi = Joi.object({
         }),
 });
 
+const emailSchemaJoi = Joi.object({
+    email: Joi.string()
+        .pattern(regexp.emailRegexp)
+        .required()
+        .messages({
+            "string.pattern.base": `{email} ${errMsg.errMsgEmailRegexp}`,
+            "string.empty": errMsg.errFieldIsrequired("Email"),
+            "any.required": errMsg.errFieldIsrequired("Email"),
+        }),
+});
+
 const schemas = {
     registerSchemaJoi,
     loginSchemaJoi,
+    emailSchemaJoi,
     subscriptionSchemaJoi,
 };
 
