@@ -39,6 +39,14 @@ const userSchemaMongoose = new Schema(
             required: [true, errMsg.errFieldIsrequired("Avatar image")],
         },
         token: String,
+        verify: {
+            type: Boolean,
+            default: false,
+        },
+        verificationToken: {
+            type: String,
+            required: [true, errMsg.errFieldIsrequired("Verify token")],
+        },
     },
     { versionKey: false, timestamps: true }
 );

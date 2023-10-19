@@ -4,10 +4,11 @@ const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
+const randomId = require("crypto").randomUUID;
 
 const User = require("../models/user");
-const ctrlWrapper = require("../helpers/ctrlWrapper");
-const HttpError = require("../helpers/HttpError");
+const { ctrlWrapper, HttpError, verifyEmailTmpl } = require("../helpers");
+const sendEmail = require("../helpers/sendEmailUkrNet");
 const errMsg = require("../consts/errors");
 
 const { SECRET_KEY } = process.env;
@@ -16,11 +17,16 @@ const register = async (req, res) => {
     const hashPass = await bcrypt.hash(req.body.password, 10);
     const avatarURL = gravatar.url(req.body.email);
 
+    const verificationToken = randomId();
+
     const result = await User.create({
         ...req.body,
         password: hashPass,
         avatarURL,
+        verificationToken,
     });
+
+    await sendEmail(verifyEmailTmpl(result.email, verificationToken));
 
     res.status(201).json({
         user: {
@@ -35,6 +41,10 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
         throw HttpError(401, errMsg.errMsgAuthInvalid);
+    }
+
+    if (!user.verify) {
+        throw HttpError(401, errMsg.errMsgEmailNotVerify);
     }
 
     const copmarePass = await bcrypt.compare(req.body.password, user.password);
@@ -112,6 +122,39 @@ const updateAvatar = async (req, res) => {
     res.json({ avatarURL });
 };
 
+const verifyEmail = async (req, res) => {
+    const { verificationToken } = req.params;
+
+    const user = await User.findOne({ verificationToken });
+
+    if (!user) {
+        throw HttpError(404, errMsg.errMsgUserNotFound);
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+        verify: true,
+        verificationToken: "",
+    });
+
+    res.json({ message: "Verification successful" });
+};
+
+const resendVerifyToken = async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw HttpError(404, errMsg.errMsgUserNotFound);
+    }
+
+    if (user.verify) {
+        throw HttpError(400, "Verification has already been passed");
+    }
+
+    await sendEmail(verifyEmailTmpl(email, user.verificationToken));
+
+    res.status(200).json({ message: "Verification email sent" });
+};
+
 module.exports = {
     register: ctrlWrapper(register),
     login: ctrlWrapper(login),
@@ -119,4 +162,6 @@ module.exports = {
     subscription: ctrlWrapper(subscription),
     logout: ctrlWrapper(logout),
     updateAvatar: ctrlWrapper(updateAvatar),
+    verifyEmail: ctrlWrapper(verifyEmail),
+    resendVerifyToken: ctrlWrapper(resendVerifyToken),
 };

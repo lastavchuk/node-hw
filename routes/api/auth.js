@@ -9,6 +9,10 @@ router.post('/login', validateBody(schemas.loginSchemaJoi), ctrl.login);
 
 router.post('/register', validateBody(schemas.registerSchemaJoi), ctrl.register);
 
+router.get('/verify/:verificationToken', ctrl.verifyEmail);
+
+router.post('/verify', validateBody(schemas.emailSchemaJoi), ctrl.resendVerifyToken);
+
 router.patch('/', authenticate, validateBody(schemas.subscriptionSchemaJoi), ctrl.subscription);
 
 router.get('/current', authenticate, ctrl.current);
