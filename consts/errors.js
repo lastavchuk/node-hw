@@ -21,6 +21,9 @@ function errFieldIsrequired(field) {
     return `${field} is required!`;
 }
 
+const errMsgEmailNotVerify = "Your email address has not been verified";
+const errMsgUserNotFound = "User not found";
+
 module.exports = {
     errBadReq,
     errNotAuth,
@@ -34,4 +37,6 @@ module.exports = {
     errMsgMinPass,
     errMsgAuthInvalid,
     errFieldIsrequired,
+    errMsgEmailNotVerify,
+    errMsgUserNotFound,
 };
